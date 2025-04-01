@@ -4,56 +4,78 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.havrem.todo.models.FirebaseUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 public class FirebaseAuthFilter extends OncePerRequestFilter {
 
+    private static boolean firebaseInitialized = false;
+
+    private void initializeFirebase() throws IOException {
+        if (!firebaseInitialized && FirebaseApp.getApps().isEmpty()) {
+            String path = System.getenv("FIREBASE_CONFIG_PATH");
+            if (path == null || path.isBlank()) {
+                System.out.println("FIREBASE_CONFIG_PATH not set");
+                return;
+            }
+
+            FileInputStream serviceAccount = new FileInputStream(path);
+
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
+
+            FirebaseApp.initializeApp(options);
+            firebaseInitialized = true;
+
+            System.out.println("Firebase initialized in filter");
+        }
+    }
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        try {
-            if (FirebaseApp.getApps().isEmpty()) {
-                String path = System.getenv("FIREBASE_CONFIG_PATH");
-                if (path == null || path.isBlank()) {
-                    throw new IllegalStateException("FIREBASE_CONFIG_PATH not set");
-                }
-
-                FileInputStream serviceAccount = new FileInputStream(path);
-                FirebaseOptions options = FirebaseOptions.builder()
-                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                        .build();
-                FirebaseApp.initializeApp(options);
-                System.out.println("Firebase initialized from filter");
-            }
-
-            String authHeader = request.getHeader("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String idToken = authHeader.substring(7);
-                FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-                request.setAttribute("firebaseUser", decodedToken);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized: " + e.getMessage());
+        if (request.getRequestURI().startsWith("/h2-console")) {
+            filterChain.doFilter(request, response);
             return;
+        }
+
+        initializeFirebase();
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String idToken = authHeader.substring(7);
+
+            try {
+                FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+
+                FirebaseUser user = new FirebaseUser(decodedToken.getUid());
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (FirebaseAuthException e) {
+                throw new RuntimeException("Invalid Firebase token", e);
+            }
         }
 
         filterChain.doFilter(request, response);
     }
 }
-
