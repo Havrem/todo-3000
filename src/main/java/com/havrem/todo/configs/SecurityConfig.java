@@ -20,8 +20,11 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private FirebaseAuthFilter firebaseAuthFilter;
+    private final FirebaseAuthFilter firebaseAuthFilter;
+
+    public SecurityConfig(FirebaseAuthFilter firebaseAuthFilter) {
+        this.firebaseAuthFilter = firebaseAuthFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
