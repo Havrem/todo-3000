@@ -50,6 +50,9 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        String path = System.getenv("FIREBASE_CONFIG_PATH");
+        System.out.println("📦 FIREBASE_CONFIG_PATH: " + path);
+
         if (request.getRequestURI().startsWith("/h2-console")) {
             filterChain.doFilter(request, response);
             return;

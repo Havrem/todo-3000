@@ -1,11 +1,14 @@
 package com.havrem.todo.configs;
 
+import com.havrem.todo.filters.FirebaseAuthFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -17,15 +20,19 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Autowired
+    private FirebaseAuthFilter firebaseAuthFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults()) // or enable CORS if needed
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+                .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
