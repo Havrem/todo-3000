@@ -1,17 +1,12 @@
-# Start with a base image containing Java runtime
+# Use Maven image to build the JAR
+FROM maven:3.9.4-eclipse-temurin-21 AS builder
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
+
+# Use a slim runtime image
 FROM eclipse-temurin:21-jdk-alpine
-
-# Add a volume pointing to /tmp
-VOLUME /tmp
-
-# Make port 8080 available to the world outside this container
+WORKDIR /app
+COPY --from=builder /app/target/todo-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
-
-# The application's jar file
-ARG JAR_FILE=target/todo-0.0.1-SNAPSHOT.jar
-
-# Add the application's jar to the container
-COPY ${JAR_FILE} app.jar
-
-# Run the jar file
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
