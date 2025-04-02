@@ -41,17 +41,12 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
             FirebaseApp.initializeApp(options);
             firebaseInitialized = true;
-
-            System.out.println("Firebase initialized in filter");
         }
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        String path = System.getenv("FIREBASE_CONFIG_PATH");
-        System.out.println("📦 FIREBASE_CONFIG_PATH: " + path);
 
         if (request.getRequestURI().startsWith("/h2-console")) {
             filterChain.doFilter(request, response);

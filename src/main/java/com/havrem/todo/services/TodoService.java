@@ -4,6 +4,7 @@ import com.havrem.todo.dtos.CreateTodoRequest;
 import com.havrem.todo.dtos.UpdateTodoRequest;
 import com.havrem.todo.repositories.TodoRepository;
 import com.havrem.todo.models.Todo;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class TodoService {
     }
 
     public List<Todo> findByUserId(String uid) {
-        return todoRepository.findByUid(uid);
+        return todoRepository.findByUidOrderByIdDesc(uid);
     }
 
     public Todo createTodo(CreateTodoRequest request, String uid) {

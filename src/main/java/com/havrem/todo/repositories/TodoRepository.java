@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface TodoRepository extends JpaRepository<Todo, Long> {
     List<Todo> findByUid(String uid);
+    List<Todo> findByUidOrderByIdDesc(String uid);
 }
