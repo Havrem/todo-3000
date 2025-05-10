@@ -1,9 +1,11 @@
-package com.havrem.todo.models;
+package com.havrem.todo.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+
+import java.time.LocalDate;
 
 @Entity
 public class Todo {
@@ -13,16 +15,10 @@ public class Todo {
     private String title;
     private boolean completed;
     private String uid;
+    private String description;
+    private LocalDate due;
 
-    public Todo(String title, boolean completed, String uid) {
-        this.title = title;
-        this.completed = completed;
-        this.uid = uid;
-    }
-
-    public Todo() {
-
-    }
+    public Todo() {}
 
     public Long getId() {
         return id;
@@ -54,5 +50,21 @@ public class Todo {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDate getDue() {
+        return due;
+    }
+
+    public void setDue(LocalDate due) {
+        this.due = due;
     }
 }

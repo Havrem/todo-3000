@@ -1,3 +1,3 @@
-package com.havrem.todo.models;
+package com.havrem.todo.model;
 
 public record FirebaseUser(String uid) {}

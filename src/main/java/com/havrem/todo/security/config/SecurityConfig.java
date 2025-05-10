@@ -1,10 +1,12 @@
-package com.havrem.todo.configs;
+package com.havrem.todo.security.config;
 
-import com.havrem.todo.filters.FirebaseAuthFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.havrem.todo.security.CustomAuthenticationEntryPoint;
+import com.havrem.todo.security.filter.FirebaseAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.Customizer;
@@ -17,25 +19,28 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
+@Profile("prod")
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final FirebaseAuthFilter firebaseAuthFilter;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    public SecurityConfig(FirebaseAuthFilter firebaseAuthFilter) {
+    public SecurityConfig(FirebaseAuthFilter firebaseAuthFilter, CustomAuthenticationEntryPoint authenticationEntryPoint) {
         this.firebaseAuthFilter = firebaseAuthFilter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults()) // or enable CORS if needed
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint));
 
         return http.build();
     }
