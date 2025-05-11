@@ -1,5 +1,6 @@
 package com.havrem.todo.controller;
 
+import com.havrem.todo.api.TodoApi;
 import com.havrem.todo.dto.request.CreateTodoRequest;
 import com.havrem.todo.dto.response.TodoResponse;
 import com.havrem.todo.dto.request.UpdateTodoRequest;
@@ -15,7 +16,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-public class TodoController {
+public class TodoController implements TodoApi {
     private final TodoService todoService;
 
     public TodoController(TodoService todoService) {
