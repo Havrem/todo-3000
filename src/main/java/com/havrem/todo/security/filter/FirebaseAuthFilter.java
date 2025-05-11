@@ -48,12 +48,6 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-
-        if (request.getRequestURI().startsWith("/h2-console")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         initializeFirebase();
 
         String authHeader = request.getHeader("Authorization");

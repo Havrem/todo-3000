@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Get Firebase Token</title>
+        <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    </head>
+    <body>
+    <h1>Firebase Token Tool</h1>
+    <p>Enter credentials for a test user to get a JWT you can use in Swagger UI:</p>
+
+    <label>Email: <input id="email"/></label><br/>
+    <label>Password: <input id="password" type="password"/></label><br/>
+    <button onclick="login()">Get Token</button>
+
+    <pre id="output" style="margin-top:1em; background:#f0f0f0; padding:1em;"></pre>
+
+        <script>
+            const firebaseConfig = {
+                apiKey: "AIzaSyDSgNzkEC5iOe61EkjLeZOWaQVtcsurAYg",
+                authDomain: "todo-261f9.firebaseapp.com",
+                projectId: "todo-261f9",
+                storageBucket: "todo-261f9.firebasestorage.app",
+                messagingSenderId: "698661463861",
+                appId: "1:698661463861:web:24f2b26de997cf1a284e7c"
+            };
+
+            firebase.initializeApp(firebaseConfig);
+
+            async function login() {
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+
+                try {
+                    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                    const token = await userCredential.user.getIdToken();
+                    document.getElementById("output").textContent = token;
+                } catch (error) {
+                    document.getElementById("output").textContent = "Error: " + error.message;
+                }
+            }
+        </script>
+    </body>
+</html>

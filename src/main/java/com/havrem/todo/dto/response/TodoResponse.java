@@ -1,3 +1,5 @@
 package com.havrem.todo.dto.response;
 
-public record TodoResponse(long id, String title, boolean completed) {}
+import java.time.LocalDate;
+
+public record TodoResponse(long id, String title, boolean completed, String description, LocalDate due) {}

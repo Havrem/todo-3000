@@ -21,12 +21,12 @@ import java.util.List;
 @Configuration
 @Profile("prod")
 @EnableWebSecurity
-public class SecurityConfig {
+public class ProdSecurityConfig {
 
     private final FirebaseAuthFilter firebaseAuthFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    public SecurityConfig(FirebaseAuthFilter firebaseAuthFilter, CustomAuthenticationEntryPoint authenticationEntryPoint) {
+    public ProdSecurityConfig(FirebaseAuthFilter firebaseAuthFilter, CustomAuthenticationEntryPoint authenticationEntryPoint) {
         this.firebaseAuthFilter = firebaseAuthFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
@@ -35,8 +35,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults()) // or enable CORS if needed
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("docs.html",                                 "/v3/api-docs.yaml").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class)
