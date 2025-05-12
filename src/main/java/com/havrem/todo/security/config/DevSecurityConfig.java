@@ -45,7 +45,7 @@ public class DevSecurityConfig {
                                 "/v3/api-docs.yaml",
                                 "/swagger-resources/**",
                                 "/webjars/**",
-                                "docs.html"
+                                "/docs.html"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

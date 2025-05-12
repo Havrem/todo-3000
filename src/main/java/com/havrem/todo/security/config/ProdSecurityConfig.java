@@ -37,7 +37,7 @@ public class ProdSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("docs.html",                                 "/v3/api-docs.yaml").permitAll()
+                        .requestMatchers("/docs.html",                                 "/v3/api-docs.yaml").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class)
